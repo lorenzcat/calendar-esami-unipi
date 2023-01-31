@@ -1,0 +1,183 @@
+body {
+	font-family: "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+	font-size: 14px;
+	max-width: 55rem;
+	margin: auto;
+}
+
+/* light-dark toggle */
+.checkbox-container {
+	position: relative;
+}
+
+.checkbox {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 1.5rem;
+	cursor: pointer;
+	appearance: none;
+}
+
+.checkbox:before {
+	/* fa-moon */
+	content: "\f186";
+	font-family: "Font Awesome 5 Free";
+	color: #02162d;
+}
+
+.checkbox:checked:before {
+	/* fa-sun */
+	/* content: "\f185"; */
+	/* fa-lightbulb */
+	content: "\f0eb";
+	font-family: "Font Awesome 5 Free";
+	color: #ffeebf;
+	padding-right: .25rem;
+}
+
+/* header with the input fields */
+#searchbox {
+	padding-top: 2rem;
+	padding-bottom: 2rem;
+	text-align: center
+}
+
+.input-group {
+	display: grid;
+	grid-auto-flow: row;
+}
+
+@media (min-width: 55rem) {
+	.input-group {
+		grid-auto-flow: column;
+	}
+}
+
+.input-outer {
+	justify-self: center;
+}
+
+.input-inner {
+	width: 15rem;
+}
+
+.input-inner label {
+	font-weight: bold;
+	display: block;
+}
+
+.input-inner input,
+.input-inner select {
+	border: 1px solid;
+	border-color: rgba(0, 0, 0, .1) rgba(0, 0, 0, .1) rgba(0, 0, 0, .25);
+	border-radius: 4px;
+	width: 100%;
+}
+
+.input-inner-btn {
+	display: flex;
+	flex-direction: row;
+	text-align: center;
+}
+
+.input-inner-btn button {
+	width: 2rem;
+	height: 2rem;
+	margin-top: 0.5rem;
+}
+
+/* global button styles (taken from fullcalendar.io) */
+button {
+	font-size: 1rem;
+	border: 1px solid;
+	border-color: rgba(0, 0, 0, .1) rgba(0, 0, 0, .1) rgba(0, 0, 0, .25);
+	background-color: #f5f5f5;
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+button:hover {
+	background-color: #e6e6e6
+}
+
+button:active {
+	background-color: #ccc;
+}
+
+
+/* result dropdown */
+.dropdown {
+	display: grid;
+	position: relative;
+}
+
+.dropdown-content {
+	display: none;
+	position: absolute;
+	z-index: 10;
+	max-height: 500px;
+	max-width: 100%;
+	background-color: white;
+	justify-self: center;
+	overflow: auto;
+}
+
+#dropdown-fullscreen {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	overflow: auto;
+	z-index: 9;
+	background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* result dropdown table */
+.dropdown-content table {
+	font-size: small;
+}
+
+.dropdown table,
+th,
+td {
+	border: 1px solid #e6e6e6;
+	border-collapse: collapse;
+}
+
+.dropdown tr:nth-child(even) {
+	background-color: #f1f1f1;
+}
+
+.show {
+	display: block !important;
+}
+
+#clear-dropdown {
+	z-index: 10;
+}
+
+/* bottom buttons */
+.actions {
+	padding: 5px;
+	display: flex;
+	justify-content: center;
+}
+
+.actions button {
+	padding: 0.3rem;
+	margin: 1rem;
+	width: 7rem;
+}
+
+/* footer */
+footer {
+	text-align: center;
+}
+
+footer a {
+	color: #02162d;
+	text-decoration: underline;
+}
