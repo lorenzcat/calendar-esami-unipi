@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Calendar Esami UniPi</title>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+	<script src='./lib/ics.js-0.2.0.deps.min.js'></script>
+	<link href='./lib/fullcalendar-3.8.2.min.css' rel='stylesheet' />
+	<script src='./lib/moment-2.29.4.min.js'></script>
+	<script src='./lib/jquery-3.3.1.min.js'></script>
+	<script src='./lib/fullcalendar-3.8.2.min.js'></script>
+	<script src='./lib/lz-string-1.4.4.min.js'></script>
+	<script src='./lib/notiflix-aio-3.2.5.min.js'></script>
+	<script src='./lib/darkreader-4.9.58.min.js'></script>
+
+	<script src="./js/script.js"></script>
+	<link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+	<div class="checkbox-container">
+		<input type="checkbox" class="checkbox" id="checkbox">
+	</div>
+
+	<div id="searchbox">
+		<form id="form">
+			<div class="input-group" id="input-group">
+				<div class="input-outer">
+					<div class="input-inner">
+						<label>Cognome del docente</label>
+						<input type="text" name="docente" id="docente">
+					</div>
+				</div>
+				<div class="input-outer">
+					<div class="input-inner">
+						<label>Insegnamento</label>
+						<input type="text" name="insegnamento" id="insegnamento">
+					</div>
+				</div>
+				<div class="input-outer">
+					<div class="input-inner">
+						<label>Corso di laurea</label>
+						<select name="cds" id="cds"></select>
+					</div>
+				</div>
+				<div class="input-outer">
+					<div class="input-inner-btn">
+						<button class="button" id="submit-dropdown"><i class="fa-solid fa-magnifying-glass"></i></button>
+						<button class="button" id="clear-dropdown"><i class="fa-solid fa-xmark"></i></button>
+					</div>
+				</div>
+			</div>
+		</form>
+
+		<div class="dropdown">
+			<div id="dropdown-fullscreen" class="dropdownable"></div>
+			<div id="dropdown-result" class="dropdown-content dropdownable">
+			</div>
+		</div>
+	</div>
+
+	<div id='calendar'></div>
+
+	<div class="actions">
+		<button class="button" id="download">download</button>
+		<button class="button" id="share">share</button>
+		<button class="button" id="clear">clear</button>
+	</div>
+
+	<footer>
+		<p><a href="https://github.com/lorenzcat/calendar-esami-unipi" target="_blank">calendar-esami-unipi</a>
+			by <a href="https://github.com/lorenzcat" target="_blank"><i class="fa-brands fa-github"></i>/lorenzcat</a> :)</p>
+	</footer>
+</body>
+
+<script>
+	// populate the dropdown here to not clobber the DOM
+	document.addEventListener("DOMContentLoaded", () => {
+		document.getElementById("cds").innerHTML = `
+<option value="" defaultSelected="true"></option>
+<option value="WAR-LM" >ARCHEOLOGIA  (Magistrale)</option>
+<option value="WAI-LM" >ARTIFICIAL INTELLIGENCE AND DATA ENGINEERING (Magistrale)</option>
+<option value="WBF-LM" >BANCA, FINANZA AZIENDALE E MERCATI FINANZIARI (Magistrale)</option>
+<option value="BFM-L" >BANCA, FINANZA E MERCATI FINANZIARI (Triennale)</option>
+<option value="WNF-LM" >BIOLOGIA APPLICATA ALLA BIOMEDICINA (Magistrale)</option>
+<option value="WBM-LM" >BIOLOGIA MARINA (Magistrale)</option>
+<option value="WTB-LM" >BIOLOGIA MOLECOLARE E CELLULARE (Magistrale)</option>
+<option value="WBE-LM" >BIONICS ENGINEERING (Magistrale)</option>
+<option value="WBQ-LM" >BIOSICUREZZA E QUALITÀ DEGLI ALIMENTI (Magistrale)</option>
+<option value="WBH-LM" >BIOTECHNOLOGIES AND APPLIED ARTIFICIAL INTELLIGENCE FOR HEALTH (Magistrale)</option>
+<option value="BTC-L" >BIOTECNOLOGIE (Triennale)</option>
+<option value="WBO-LM" >BIOTECNOLOGIE MOLECOLARI  (Magistrale)</option>
+<option value="WBV-LM" >BIOTECNOLOGIE VEGETALI E MICROBICHE (Magistrale)</option>
+<option value="CHI-L" >CHIMICA (Triennale)</option>
+<option value="WCH-LM" >CHIMICA (Magistrale)</option>
+<option value="CTF-LM5" >CHIMICA E TECNOLOGIA FARMACEUTICHE (Ciclo unico)</option>
+<option value="WCI-LM" >CHIMICA INDUSTRIALE (Magistrale)</option>
+<option value="STC-L" >CHIMICA PER L'INDUSTRIA E L'AMBIENTE (Triennale)</option>
+<option value="WCN-LM" >COMPUTER ENGINEERING (Magistrale)</option>
+<option value="WCR-LM" >COMUNICAZIONE D'IMPRESA E POLITICA DELLE RISORSE UMANE (Magistrale)</option>
+<option value="WCE-LM" >CONSERVAZIONE ED EVOLUZIONE (Magistrale)</option>
+<option value="WCP-LM" >CONSULENZA PROFESSIONALE ALLE AZIENDE (Magistrale)</option>
+<option value="WCY-LM" >CYBERSECURITY (Magistrale)</option>
+<option value="WDB-LM" >DATA SCIENCE AND BUSINESS INFORMATICS (Magistrale)</option>
+<option value="WDS-LM" >DATA SCIENCE AND BUSINESS INFORMATICS (Magistrale)</option>
+<option value="DIE-L" >DIETISTICA  (Triennale)</option>
+<option value="DIR-L" >DIRITTO DELL'IMPRESA, DEL LAVORO E DELLE PUBBLICHE AMMINISTRAZIONI (Triennale)</option>
+<option value="WDI-LM" >DIRITTO DELL'INNOVAZIONE PER L'IMPRESA E LE ISTITUZIONI (Magistrale)</option>
+<option value="DSC-L" >DISCIPLINE DELLO SPETTACOLO E DELLA COMUNICAZIONE (Triennale)</option>
+<option value="EAZ-L" >ECONOMIA AZIENDALE (Triennale)</option>
+<option value="ECO-L" >ECONOMIA E COMMERCIO (Triennale)</option>
+<option value="ELS-L" >ECONOMIA E LEGISLAZIONE DEI SISTEMI LOGISTICI (Triennale)</option>
+<option value="WES-LM" >ECONOMICS (Magistrale)</option>
+<option value="FAR-LM5" >FARMACIA (Ciclo unico)</option>
+<option value="WSA-LM" >FILOLOGIA E STORIA DELL'ANTICHITA' (Magistrale)</option>
+<option value="FIL-L" >FILOSOFIA (Triennale)</option>
+<option value="WFF-LM" >FILOSOFIA E FORME DEL SAPERE (Magistrale)</option>
+<option value="FIS-L" >FISICA (Triennale)</option>
+<option value="WFI-LM" >FISICA (Magistrale)</option>
+<option value="FTP-L" >FISIOTERAPIA  (Triennale)</option>
+<option value="WGF-LM" >GEOFISICA DI ESPLORAZIONE E APPLICATA (Magistrale)</option>
+<option value="LMG" >GIURISPRUDENZA (Ciclo unico)</option>
+<option value="IGD-L" >IGIENE DENTALE  (Triennale)</option>
+<option value="IFE-L" >INFERMIERISTICA  (Triennale)</option>
+<option value="INF-L" >INFORMATICA (Triennale)</option>
+<option value="WIF-LM" >INFORMATICA (Magistrale)</option>
+<option value="WTW-LM" >INFORMATICA E NETWORKING (Magistrale)</option>
+<option value="IFU-L" >INFORMATICA UMANISTICA (Triennale)</option>
+<option value="WFU-LM" >INFORMATICA UMANISTICA (Magistrale)</option>
+<option value="WIA-LM" >INGEGNERIA AEROSPAZIALE (Magistrale)</option>
+<option value="IAS-L" >INGEGNERIA AEROSPAZIALE  (Triennale)</option>
+<option value="IBM-L" >INGEGNERIA BIOMEDICA (Triennale)</option>
+<option value="WIB-LM" >INGEGNERIA BIOMEDICA (Magistrale)</option>
+<option value="ICH-L" >INGEGNERIA CHIMICA (Triennale)</option>
+<option value="WIC-LM" >INGEGNERIA CHIMICA (Magistrale)</option>
+<option value="ICE-L" >INGEGNERIA CIVILE AMBIENTALE E EDILE (Triennale)</option>
+<option value="WVT-LM" >INGEGNERIA DEI VEICOLI (Magistrale)</option>
+<option value="WIV-LM" >INGEGNERIA DELLE INFRASTRUTTURE CIVILI E DELL'AMBIENTE (Magistrale)</option>
+<option value="IGT-L" >INGEGNERIA DELL'ENERGIA (Triennale)</option>
+<option value="ITC-L" >INGEGNERIA DELLE TELECOMUNICAZIONI (Triennale)</option>
+<option value="WIT-LM" >INGEGNERIA DELLE TELECOMUNICAZIONI (Magistrale)</option>
+<option value="IEA-LM5" >INGEGNERIA EDILE-ARCHITETTURA (Ciclo unico)</option>
+<option value="WIL-LM" >INGEGNERIA ELETTRICA (Magistrale)</option>
+<option value="IEL-L" >INGEGNERIA ELETTRONICA (Triennale)</option>
+<option value="WIE-LM" >INGEGNERIA ELETTRONICA (Magistrale)</option>
+<option value="WIN-LM" >INGEGNERIA ENERGETICA (Magistrale)</option>
+<option value="IGE-L" >INGEGNERIA GESTIONALE (Triennale)</option>
+<option value="WIG-LM" >INGEGNERIA GESTIONALE (Magistrale)</option>
+<option value="IFO-L" >INGEGNERIA INFORMATICA (Triennale)</option>
+<option value="IMC-L" >INGEGNERIA MECCANICA (Triennale)</option>
+<option value="WME-LM" >INGEGNERIA MECCANICA (Magistrale)</option>
+<option value="WSN-LM" >INGEGNERIA NUCLEARE (Magistrale)</option>
+<option value="IDI-L" >INGEGNERIA PER IL DESIGN INDUSTRIALE (Triennale)</option>
+<option value="WIM-LM" >INGEGNERIA ROBOTICA E DELL'AUTOMAZIONE (Magistrale)</option>
+<option value="WIS-LM" >INGEGNERIA STRUTTURALE E EDILE (Magistrale)</option>
+<option value="WVI-LM" >INNOVAZIONE SOSTENIBILE IN VITICOLTURA ED ENOLOGIA (Magistrale)</option>
+<option value="IPH-CS" >INTERNATIONAL PROGRAMME IN HUMANITIES</option>
+<option value="WTA-LM" >ITALIANISTICA (Magistrale)</option>
+<option value="LET-L" >LETTERE (Triennale)</option>
+<option value="LIN-L" >LINGUE E LETTERATURE STRANIERE (Triennale)</option>
+<option value="WLU-LM" >LINGUE, LETTERATURE E FILOLOGIE EURO - AMERICANE (Magistrale)</option>
+<option value="WLT-LM" >LINGUISTICA E TRADUZIONE (Magistrale)</option>
+<option value="LOG-L" >LOGOPEDIA  (Triennale)</option>
+<option value="WML-LM" >MANAGEMENT E CONTROLLO DEI PROCESSI LOGISTICI (Magistrale)</option>
+<option value="MBE-L" >MANAGEMENT FOR BUSINESS AND ECONOMICS (Triennale)</option>
+<option value="WMR-LM" >MARKETING E RICERCHE DI MERCATO (Magistrale)</option>
+<option value="MAT-L" >MATEMATICA (Triennale)</option>
+<option value="WMA-LM" >MATEMATICA (Magistrale)</option>
+<option value="WNT-LM" >MATERIALS AND NANOTECHNOLOGY (Magistrale)</option>
+<option value="MED-LM6" >MEDICINA E CHIRURGIA (Ciclo unico)</option>
+<option value="VET-LM5" >MEDICINA VETERINARIA (Ciclo unico)</option>
+<option value="WNC-LM" >NEUROSCIENCE (Magistrale)</option>
+<option value="ODO-LM6" >ODONTOIATRIA E PROTESI DENTARIA (Ciclo unico)</option>
+<option value="WLC-LM" >ORIENTALISTICA: EGITTO, VICINO E MEDIO ORIENTE (Magistrale)</option>
+<option value="OST-L" >OSTETRICIA  (Triennale)</option>
+<option value="POD-L" >PODOLOGIA  (Triennale)</option>
+<option value="WAB-LM" >PRODUZIONI AGROALIMENTARI E GESTIONE DEGLI AGROECOSISTEMI (Magistrale)</option>
+<option value="WMD-LM" >PROGETTAZIONE E GESTIONE DEI SISTEMI TURISTICI MEDITERRANEI (Magistrale)</option>
+<option value="WVE-LM" >PROGETTAZIONE E GESTIONE DEL VERDE URBANO E DEL PAESAGGIO (Magistrale)</option>
+<option value="WPC-LM" >PSICOLOGIA CLINICA E DELLA SALUTE (Magistrale)</option>
+<option value="AGR-L" >SCIENZE AGRARIE (Triennale)</option>
+<option value="WSM-LM" >SCIENZE AMBIENTALI (Magistrale)</option>
+<option value="BIO-L" >SCIENZE BIOLOGICHE (Triennale)</option>
+<option value="SBC-L" >SCIENZE DEI BENI CULTURALI (Triennale)</option>
+<option value="PES-L" >SCIENZE DEI PRODOTTI ERBORISTICI E DELLA SALUTE (Triennale)</option>
+<option value="SFP-LM5" >SCIENZE DELLA FORMAZIONE PRIMARIA (Ciclo unico)</option>
+<option value="WNU-LM" >SCIENZE DELLA NUTRIZIONE UMANA (Magistrale)</option>
+<option value="WPU-LM" >SCIENZE DELLE PUBBLICHE AMMINISTRAZIONI (Magistrale)</option>
+<option value="SSN-L" >SCIENZE DEL SERVIZIO SOCIALE (Triennale)</option>
+<option value="STR-L" >SCIENZE DEL TURISMO (Triennale)</option>
+<option value="WMO-LM" >SCIENZE E TECNICHE DELLE ATTIVITA' MOTORIE PREVENTIVE E ADATTATE (Magistrale)</option>
+<option value="PSI-L" >SCIENZE E TECNICHE DI PSICOLOGIA CLINICA E DELLA SALUTE (Triennale)</option>
+<option value="STP-L" >SCIENZE E TECNOLOGIE DELLE PRODUZIONI ANIMALI (Triennale)</option>
+<option value="WPA-LM" >SCIENZE E TECNOLOGIE DELLE PRODUZIONI ANIMALI (Magistrale)</option>
+<option value="WGE-LM" >SCIENZE E TECNOLOGIE GEOLOGICHE (Magistrale)</option>
+<option value="GEO-L" >SCIENZE GEOLOGICHE (Triennale)</option>
+<option value="WIO-LM" >SCIENZE INFERMIERISTICHE E OSTETRICHE (Magistrale)</option>
+<option value="SMO-L" >SCIENZE MOTORIE (Triennale)</option>
+<option value="NAT-L" >SCIENZE NATURALI ED AMBIENTALI (Triennale)</option>
+<option value="PAX-L" >SCIENZE PER LA PACE: COOPERAZIONE INTERNAZIONALE E TRASFORMAZIONE DEI CONFLITTI (Triennale)</option>
+<option value="WPX-LM" >SCIENZE PER LA PACE: TRASFORMAZIONE DEI CONFLITTI E COOPERAZIONE ALLO SVILUPPO (Magistrale)</option>
+<option value="SPN-L" >SCIENZE POLITICHE (Triennale)</option>
+<option value="WRB-LM" >SCIENZE RIABILITATIVE DELLE PROFESSIONI SANITARIE (Magistrale)</option>
+<option value="SOC-L" >SCIENZE SOCIALI E DEL SERVIZIO SOCIALE (Triennale)</option>
+<option value="WAS-LM" >SISTEMI AGRICOLI SOSTENIBILI (Magistrale)</option>
+<option value="WSS-LM" >SOCIOLOGIA E MANAGEMENT DEI SERVIZI SOCIALI  (Magistrale)</option>
+<option value="STO-L" >STORIA (Triennale)</option>
+<option value="WSR-LM" >STORIA E CIVILTÀ (Magistrale)</option>
+<option value="WAV-LM" >STORIA E FORME DELLE ARTI VISIVE, DELLO SPETTACOLO E DEI NUOVI MEDIA  (Magistrale)</option>
+<option value="WSG-LM" >STRATEGIA, MANAGEMENT E CONTROLLO (Magistrale)</option>
+<option value="WPR-LM" >STUDI INTERNAZIONALI (Magistrale)</option>
+<option value="RIP-L" >TECNICA DELLA RIABILITAZIONE PSICHIATRICA  (Triennale)</option>
+<option value="TDP-L" >TECNICHE AUDIOPROTESICHE  (Triennale)</option>
+<option value="TPA-L" >TECNICHE DELLA PREVENZIONE NELL'AMBIENTE E NEI LUOGHI DI LAVORO  (Triennale)</option>
+<option value="CAN-L" >TECNICHE DI ALLEVAMENTO ANIMALE ED EDUCAZIONE CINOFILA (Triennale)</option>
+<option value="TLB-L" >TECNICHE DI LABORATORIO BIOMEDICO  (Triennale)</option>
+<option value="TRM-L" >TECNICHE DI RADIOLOGIA MEDICA, PER IMMAGINI E RADIOTERAPIA  (Triennale)</option>
+<option value="WTC-LM" >TECNOLOGIA E PRODUZIONE DELLA CARTA E DEL CARTONE (Magistrale)</option>
+<option value="TNP-L" >TERAPIA DELLA NEURO E PSICOMOTRICITÀ DELL'ETÀ EVOLUTIVA  (Triennale)</option>
+<option value="VIT-L" >VITICOLTURA ED ENOLOGIA (Triennale)</option>`
+	});
+</script>
+
+</html>
