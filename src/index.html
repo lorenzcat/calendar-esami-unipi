@@ -23,10 +23,11 @@
 
 <body>
 	<div class="checkbox-container">
-		<input type="checkbox" class="checkbox" id="checkbox">
+		<input type="checkbox" class="checkbox" id="dark-checkbox">
+		<input type="checkbox" class="checkbox" id="hide-checkbox">
 	</div>
 
-	<div id="searchbox">
+	<div id="searchbox" class="hideable">
 		<form id="form">
 			<div class="input-group" id="input-group">
 				<div class="input-outer">
@@ -65,13 +66,13 @@
 
 	<div id='calendar'></div>
 
-	<div class="actions">
+	<div class="actions hideable">
 		<button class="button" id="download">download</button>
 		<button class="button" id="share">share</button>
 		<button class="button" id="clear">clear</button>
 	</div>
 
-	<footer>
+	<footer class="hideable">
 		<p><a href="https://github.com/lorenzcat/calendar-esami-unipi" target="_blank">calendar-esami-unipi</a>
 			by <a href="https://github.com/lorenzcat" target="_blank"><i class="fa-brands fa-github"></i>/lorenzcat</a> :)</p>
 	</footer>
