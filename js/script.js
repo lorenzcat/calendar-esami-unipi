@@ -9,14 +9,34 @@ $(() => {
 	Notiflix.Notify.init({ timeout: 2000, });
 	Notiflix.Loading.init({ svgColor: "#383838", backgroundColor: "rgba(255,255,255,0.9)", messageColor: "#383838", });
 
+	// override darkreader's 'color-scheme: dark' because it breaks the notion embed
+	$('html').attr('style', 'color-scheme: light !important');
 	DarkReader.setFetchMethod(window.fetch);
+	const DarkReaderTheme = {"darkSchemeBackgroundColor": "#191919"};
+
+	if (ObjDataStore.get("dark", false)) {
+		DarkReader.enable(DarkReaderTheme);
+		$("#dark-checkbox").prop("checked", true);
+		$(".checkbox").addClass("dark");
+	}
+
+	$("#dark-checkbox").change(() => { // dark light toggle
+		DarkReader.isEnabled() ? DarkReader.disable() : DarkReader.enable(DarkReaderTheme);
+		ObjDataStore.set("dark", DarkReader.isEnabled());
+		$(".checkbox").toggleClass("dark");
+	});
+
+	if (ObjDataStore.get("hide", false)) {
+		$(".hideable").hide();
+		$("#hide-checkbox").prop("checked", true);
+	}
+
+	$("#hide-checkbox").change(() => { // hide toggle
+		ObjDataStore.set("hide", $(".hideable").is(":visible"));
+		$(".hideable").toggle();
+	});
 
 	calendar = new PersistentSelfRedrawingCalendar();
-
-	// dark light toggle
-	$("#checkbox").change(() => {
-		DarkReader.isEnabled() ? DarkReader.disable() : DarkReader.enable();
-	});
 
 	// search button/enter
 	$("#form").submit(async (e) => {
@@ -122,8 +142,8 @@ const ObjDataStore = (function () {
 		},
 		'set': function (key, value) {
 			const obj = get_kv_obj();
-			obj[key] = value;
-			const hash = Object.entries(obj).map(([key, value]) => `${key}=${compress(JSON.stringify(value))}`).join('&');
+			obj[key] = compress(JSON.stringify(value));
+			const hash = Object.entries(obj).map(([key, value]) => `${key}=${value}`).join('&');
 			document.location.hash = hash;
 		}
 	};
@@ -279,8 +299,8 @@ const json_to_table_with_button = (json, onclick) => {
 	return table;
 }
 
-const CORS_PROXY = "https://esami-unipi-cors-proxy.e47930a2.workers.dev";
-const ESAMI_UNIPI = "esami.unipi.it/elencoappelli.php";
+const CORS_PROXY = "https://corsproxy.io/";
+const ESAMI_UNIPI = "https://esami.unipi.it/elencoappelli.php";
 /**
  * Fetches the exams from the esami.unipi.it website and returns them as an array of objects.
  * @param {String} d - The name of the teacher (*d*ocente).
@@ -290,7 +310,7 @@ const ESAMI_UNIPI = "esami.unipi.it/elencoappelli.php";
  */
 async function fetch_exams(d, i, c) {
 	const e = encodeURIComponent;
-	const url = `${CORS_PROXY}/${ESAMI_UNIPI}?from=sappelli&docente=${e(d)}&insegnamento=${e(i)}&cds=${e(c)}&cerca=`;
+	const url = `${CORS_PROXY}?${ESAMI_UNIPI}?from=sappelli&docente=${e(d)}&insegnamento=${e(i)}&cds=${e(c)}&cerca=`;
 
 	let text;
 	try {

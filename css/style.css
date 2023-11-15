@@ -7,39 +7,48 @@ body {
 
 /* light-dark toggle */
 .checkbox-container {
-	position: relative;
+	display: flex;
+	justify-content: flex-end
 }
 
 .checkbox {
-	position: absolute;
-	top: 0;
-	right: 0;
 	font-size: 1.5rem;
 	cursor: pointer;
 	appearance: none;
+	font-family: "Font Awesome 5 Free";
 }
 
-.checkbox:before {
+.checkbox.dark {
+	color: #fff;
+}
+
+#dark-checkbox:before {
 	/* fa-moon */
 	content: "\f186";
-	font-family: "Font Awesome 5 Free";
-	color: #02162d;
 }
 
-.checkbox:checked:before {
+#dark-checkbox:checked:before {
 	/* fa-sun */
 	/* content: "\f185"; */
 	/* fa-lightbulb */
 	content: "\f0eb";
-	font-family: "Font Awesome 5 Free";
-	color: #ffeebf;
+	padding-right: .25rem;
+}
+
+#hide-checkbox:before {
+	/* fa-eye-slash */
+	content: "\f070";
+}
+
+#hide-checkbox:checked:before {
+	/* fa-eye */
+	content: "\f06e";
 	padding-right: .25rem;
 }
 
 /* header with the input fields */
 #searchbox {
-	padding-top: 2rem;
-	padding-bottom: 2rem;
+	padding: 1rem 0;
 	text-align: center
 }
 
@@ -159,9 +168,13 @@ td {
 	z-index: 10;
 }
 
+#calendar {
+	margin: 1rem auto;
+}
+
 /* bottom buttons */
 .actions {
-	padding: 5px;
+	margin: 1rem auto;
 	display: flex;
 	justify-content: center;
 }
