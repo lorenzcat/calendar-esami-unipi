@@ -431,6 +431,7 @@ function drawCalendar(events) {
 		editable: false,
 		minTime: "7:30:00",
 		maxTime: "21:30:00",
+		firstDay: 1,
 		eventClick: event_popup,
 	});
 
